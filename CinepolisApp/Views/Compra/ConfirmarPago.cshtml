@@ -1,6 +1,4 @@
-﻿
-
-@{
+﻿@{
     ViewData["Title"] = "Pasarela de Pago Segura";
 }
 
@@ -22,14 +20,11 @@
             <hr />
             <div class="d-flex justify-content-between align-items-center">
                 <span class="fs-5 fw-bold text-dark">TOTAL A PAGAR:</span>
-                <span class="fs-4 fw-bold style" style="color: #00122e;">S/ @ViewBag.TotalPagar</span>
+                <span class="fs-4 fw-bold" style="color: #00122e;">S/ @ViewBag.TotalPagar</span>
             </div>
         </div>
 
-        <form asp-action="ProcesarVentaFinal" method="post" id="formPago">
-            <input type="hidden" name="idFuncion" value="@ViewBag.IdFuncion" />
-            <input type="hidden" name="asientos" value="@ViewBag.Asientos" />
-            <input type="hidden" name="total" value="@ViewBag.TotalPagar" />
+        <form asp-controller="Compra" asp-action="ProcesarVentaFinal" method="post" id="formPago">
 
             <div class="mb-3">
                 <label class="form-label fw-bold text-muted small">Método de Pago</label>
@@ -57,8 +52,13 @@
             </div>
 
             <div id="seccionYape" class="d-none text-center p-3 rounded mb-3" style="background-color: #f0fdf4;">
-                <p class="fw-bold text-success mb-2">Escanea el QR o yapea al número de Cinépolis</p>
-                <img src="https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=YAPEA-CINEPOLIS" class="img-fluid mb-2 border rounded p-1 bg-white" />
+                <p class="fw-bold text-success mb-2">Escanea el QR </p>
+
+                <img src="~/images/qr.png"
+                     alt="QR Yape Estático"
+                     style="width: 150px; height: 150px;"
+                     class="img-fluid mb-2 border rounded p-1 bg-white" />
+
                 <div class="mb-3 text-start">
                     <label class="form-label small fw-bold">Código de Aprobación (6 dígitos)</label>
                     <input type="text" class="form-control" placeholder="000000" maxlength="6" id="codYape" />
@@ -76,7 +76,6 @@
         </form>
     </div>
 </div>
-
 <script>
     function seleccionarMetodo(tipo) {
         if(tipo === 'tarjeta') {

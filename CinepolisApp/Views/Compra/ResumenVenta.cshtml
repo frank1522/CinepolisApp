@@ -62,19 +62,12 @@
             <h4 class="mb-0 fw-bold fs-3">S/ @(ViewBag.TotalPagar ?? "0.00")</h4>
         </div>
 
-        <form asp-controller="Compra" asp-action="TerminarCompra" method="post">
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary">Nombre Completo del Cliente</label>
-                <input type="text" name="clienteNombre" class="form-control" placeholder="Ej. Frank..." required />
-            </div>
+        <form asp-controller="Compra" asp-action="EnviarAPasarela" method="post">
             <div class="mb-4">
-                <label class="form-label small fw-bold text-secondary">DNI / Documento</label>
-                <input type="text" name="clienteDni" class="form-control" maxlength="8" placeholder="8 dígitos" required />
+                <label class="form-label small fw-bold text-secondary">Nombre Completo del Cliente</label>
+                <input type="text" name="clienteNombre" class="form-control" required />
             </div>
-
-            <button type="submit" class="btn btn-success w-100 fw-bold py-2 fs-5 shadow-sm">
-                🔒 Finalizar y Pagar S/ @(ViewBag.TotalPagar ?? "0.00")
-            </button>
+            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">➡️ Continuar al Pago</button>
         </form>
 
     </div>
