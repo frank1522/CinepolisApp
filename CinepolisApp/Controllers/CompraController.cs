@@ -1,30 +1,33 @@
 ﻿using CinepolisApp.DAO;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
 
 namespace CinepolisApp.Controllers
 {
     public class CompraController : Controller
     {
         private readonly FuncionDAO _funcionDAO = new FuncionDAO();
+        private readonly ProductoDAO _productoDAO = new ProductoDAO();
+        private readonly VentaDAO _ventaDAO = new VentaDAO();
 
-        // Mostrar funciones disponibles para la película seleccionada
+        // 1. Mostrar funciones disponibles para la película seleccionada
         public IActionResult SeleccionarFuncion(int id)
         {
             var funciones = _funcionDAO.ListarPorPelicula(id);
-
             if (funciones.Count == 0)
             {
-                // Si no hay funciones, te devuelve a la cartelera
                 return RedirectToAction("Index", "Home");
             }
-
-            // Pasamos la lista de horarios a la vista
             return View(funciones);
         }
-        //Mostrar el mapa de asientos (Butacas)
+
+        // 2. Mostrar el mapa de asientos (Butacas)
         public IActionResult SeleccionarAsientos(int idFuncion)
         {
-            // Pasamos el idFuncion a la vista para saber a qué horario le pertenecen los asientos
             ViewBag.IdFuncion = idFuncion;
             return View();
         }
@@ -35,28 +38,21 @@ namespace CinepolisApp.Controllers
         {
             if (string.IsNullOrEmpty(asientos))
             {
-                // Si no seleccionó nada, lo mandamos de vuelta con una alerta
                 TempData["Error"] = "Debes seleccionar al menos un asiento.";
                 return RedirectToAction("SeleccionarAsientos", new { idFuncion = idFuncion });
             }
 
-            // GUARDAMOS EN LA SESIÓN DEL NAVEGADOR (El carrito empieza a llenarse)
             HttpContext.Session.SetInt32("Carrito_IdFuncion", idFuncion);
             HttpContext.Session.SetString("Carrito_Asientos", asientos);
 
-            // Contamos cuántos asientos eligió (Separados por coma: "A1,A2" = 2 entradas)
             int cantidadEntradas = asientos.Split(',').Length;
             HttpContext.Session.SetInt32("Carrito_CantidadEntradas", cantidadEntradas);
-
-            // Mandamos al usuario al PASO 3: La Dulcería/Snacks (que haremos luego)
             return RedirectToAction("SeleccionarCombos", "Compra");
         }
-        private readonly ProductoDAO _productoDAO = new ProductoDAO();
 
-        // GET: Mostrar la dulcería
+        // 3. GET: Mostrar la dulcería
         public IActionResult SeleccionarCombos()
         {
-            // Jalamos los combos de la BD
             var productos = _productoDAO.ListarTodos();
             return View(productos);
         }
@@ -65,34 +61,28 @@ namespace CinepolisApp.Controllers
         [HttpPost]
         public IActionResult GuardarCombos(List<int> idProducto, List<int> cantidad)
         {
-            // Creamos dos strings separados por comas para guardar en la sesión simple de .NET Core
-            // Ej: "1,2" (IDs de productos) y "2,1" (cantidades)
             List<string> listaIds = new List<string>();
             List<string> listaCants = new List<string>();
 
             for (int i = 0; i < idProducto.Count; i++)
             {
-                if (cantidad[i] > 0) // Solo guardamos los que el usuario sumó
+                if (cantidad[i] > 0)
                 {
                     listaIds.Add(idProducto[i].ToString());
                     listaCants.Add(cantidad[i].ToString());
                 }
             }
 
-            // Guardamos en la sesión (si no eligió nada, se guardará vacío, lo cual es válido)
             HttpContext.Session.SetString("Carrito_ProductosIds", string.Join(",", listaIds));
             HttpContext.Session.SetString("Carrito_ProductosCantidades", string.Join(",", listaCants));
 
-            // Nos vamos al PASO 4: Resumen y Confirmación de la Venta final
             return RedirectToAction("ResumenVenta", "Compra");
         }
-        private readonly VentaDAO _ventaDAO = new VentaDAO();
 
-        // GET: Mostrar Resumen del Carrito de Compras
+        // 4. GET: Mostrar Resumen del Carrito de Compras (Tu Boleta + Pasarela)
         [HttpGet]
         public IActionResult ResumenVenta()
         {
-            // 1. Recuperar datos de Entradas de la Sesión
             int? idFuncion = HttpContext.Session.GetInt32("Carrito_IdFuncion");
             string asientos = HttpContext.Session.GetString("Carrito_Asientos");
             int? cantEntradas = HttpContext.Session.GetInt32("Carrito_CantidadEntradas");
@@ -102,14 +92,12 @@ namespace CinepolisApp.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            decimal precioEntrada = 15.00m; // Precio base por entrada
+            decimal precioEntrada = 15.00m;
             decimal totalEntradas = (cantEntradas ?? 0) * precioEntrada;
             decimal totalCombos = 0;
 
-            // Crear una lista temporal para pasar los combos elegidos a la vista
             List<ComboElegidoDTO> combosLista = new List<ComboElegidoDTO>();
 
-            // 2. Recuperar datos de la Dulcería de la Sesión
             string prodIdsStr = HttpContext.Session.GetString("Carrito_ProductosIds");
             string prodCantsStr = HttpContext.Session.GetString("Carrito_ProductosCantidades");
 
@@ -117,8 +105,6 @@ namespace CinepolisApp.Controllers
             {
                 var ids = prodIdsStr.Split(',').Select(int.Parse).ToList();
                 var cants = prodCantsStr.Split(',').Select(int.Parse).ToList();
-
-                // Jalamos todos los productos para comparar precios
                 var todosProductos = _productoDAO.ListarTodos();
 
                 for (int i = 0; i < ids.Count; i++)
@@ -140,17 +126,15 @@ namespace CinepolisApp.Controllers
                 }
             }
 
-            // 3. Pasar absolutamente todo al ViewBags
+            // Datos que van directo a la vista del formulario de pago
+            ViewBag.IdFuncion = idFuncion;
             ViewBag.Asientos = asientos;
-            ViewBag.CantidadEntradas = cantEntradas;
-            ViewBag.TotalEntradas = totalEntradas;
+            ViewBag.SubtotalEntradas = totalEntradas.ToString("F2");
+            ViewBag.SubtotalSnacks = totalCombos.ToString("F2");
+            ViewBag.TotalPagar = (totalEntradas + totalCombos).ToString("F2");
             ViewBag.ListaCombos = combosLista;
-            ViewBag.TotalCombos = totalCombos;
 
-            // El gran total sumando ambos mundos
-            ViewBag.TotalPagar = totalEntradas + totalCombos;
-
-            return View();
+            return View(); // Tu vista ResumenVenta renderizará el formulario de pago
         }
 
         // Objeto temporal para estructurar los combos en el resumen
@@ -162,7 +146,7 @@ namespace CinepolisApp.Controllers
             public decimal Subtotal { get; set; }
         }
 
-        // POST: Procesar el Botón de Pago Final
+        // 5. POST: Procesar el Pago Final, Registrar en BD y mandar a la pantalla del QR
         [HttpPost]
         public IActionResult TerminarCompra(string clienteNombre, string clienteDni)
         {
@@ -173,7 +157,6 @@ namespace CinepolisApp.Controllers
             decimal precioEntrada = 15.00m;
             decimal total = cantEntradas * precioEntrada;
 
-            // Recalcular los combos para sumarlos al total final de la BD
             string prodIdsStr = HttpContext.Session.GetString("Carrito_ProductosIds");
             string prodCantsStr = HttpContext.Session.GetString("Carrito_ProductosCantidades");
 
@@ -198,19 +181,28 @@ namespace CinepolisApp.Controllers
                 }
             }
 
-            // Pasamos las listas completas al VentaDAO para que registre la cabecera y el DetalleProductos
+            // Guardamos la venta real en la base de datos usando tu DAO
             int idVenta = _ventaDAO.RegistrarVenta(clienteNombre, clienteDni, total, idFuncion, cantEntradas, asientos, listaIds, listaCants, listaPrecios);
 
             if (idVenta > 0)
             {
-                // Guardamos el ID de la venta en una variable temporal para el siguiente paso (El PDF/Ticket)
-                TempData["MensajeExito"] = $"¡Compra Exitosa! Tu código de Ticket es N° 000{idVenta}";
+                // Limpiamos la sesión porque la compra ya culminó
                 HttpContext.Session.Clear();
-                return RedirectToAction("Index", "Home");
+
+                // Redirigimos a la pantalla de éxito mandando el ID generado
+                return RedirectToAction("Exito", new { idVenta = idVenta });
             }
 
             TempData["Error"] = "Hubo un problema al procesar tu compra.";
             return RedirectToAction("ResumenVenta");
+        }
+
+        // 6. GET: Pantalla de Éxito Final con el QR
+        [HttpGet]
+        public IActionResult Exito(int idVenta)
+        {
+            ViewBag.IdVenta = idVenta;
+            return View();
         }
     }
 }

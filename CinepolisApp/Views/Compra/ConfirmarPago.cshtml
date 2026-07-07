@@ -1,0 +1,100 @@
+﻿
+
+@{
+    ViewData["Title"] = "Pasarela de Pago Segura";
+}
+
+<div class="container mt-4" style="max-width: 650px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h3 class="fw-bold text-center mb-1" style="color: #00122e;">💳 PASARELA DE PAGO</h3>
+        <p class="text-muted text-center small mb-4">Finaliza tu compra de forma segura</p>
+
+        <div class="p-3 mb-4 rounded" style="background-color: #f8fafc; border: 1px dashed #ced4da;">
+            <h5 class="fw-bold text-dark border-bottom pb-2"><i class="fa-solid fa-receipt me-2"></i>Resumen de tu Boleta</h5>
+            <div class="d-flex justify-content-between my-2">
+                <span>Subtotal Entradas:</span>
+                <span class="fw-bold">S/ @ViewBag.SubtotalEntradas</span>
+            </div>
+            <div class="d-flex justify-content-between my-2">
+                <span>Subtotal Dulcería:</span>
+                <span class="fw-bold">S/ @ViewBag.SubtotalSnacks</span>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fs-5 fw-bold text-dark">TOTAL A PAGAR:</span>
+                <span class="fs-4 fw-bold style" style="color: #00122e;">S/ @ViewBag.TotalPagar</span>
+            </div>
+        </div>
+
+        <form asp-action="ProcesarVentaFinal" method="post" id="formPago">
+            <input type="hidden" name="idFuncion" value="@ViewBag.IdFuncion" />
+            <input type="hidden" name="asientos" value="@ViewBag.Asientos" />
+            <input type="hidden" name="total" value="@ViewBag.TotalPagar" />
+
+            <div class="mb-3">
+                <label class="form-label fw-bold text-muted small">Método de Pago</label>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary w-50 fw-bold active" id="btnTarjeta" onclick="seleccionarMetodo('tarjeta')">💳 Tarjeta</button>
+                    <button type="button" class="btn btn-outline-success w-50 fw-bold" id="btnYape" onclick="seleccionarMetodo('yape')">📱 Yape / Plin</button>
+                </div>
+            </div>
+
+            <div id="seccionTarjeta">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Número de Tarjeta</label>
+                    <input type="text" class="form-control" placeholder="4557 •••• •••• ••••" maxlength="16" id="numTarjeta" required />
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold">Vencimiento</label>
+                        <input type="text" class="form-control" placeholder="MM/AA" maxlength="5" id="vencimiento" required />
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold">CVV</label>
+                        <input type="password" class="form-control" placeholder="123" maxlength="3" id="cvv" required />
+                    </div>
+                </div>
+            </div>
+
+            <div id="seccionYape" class="d-none text-center p-3 rounded mb-3" style="background-color: #f0fdf4;">
+                <p class="fw-bold text-success mb-2">Escanea el QR o yapea al número de Cinépolis</p>
+                <img src="https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=YAPEA-CINEPOLIS" class="img-fluid mb-2 border rounded p-1 bg-white" />
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Código de Aprobación (6 dígitos)</label>
+                    <input type="text" class="form-control" placeholder="000000" maxlength="6" id="codYape" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">DNI del Titular</label>
+                <input type="text" name="dniCliente" class="form-control" placeholder="Escribe tu DNI" maxlength="8" required />
+            </div>
+
+            <button type="submit" class="btn w-100 fw-bold text-white fs-5 py-2 mt-2" style="background-color: #00122e;">
+                Finalizar Compra y Generar Ticket 🚀
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function seleccionarMetodo(tipo) {
+        if(tipo === 'tarjeta') {
+            document.getElementById('seccionTarjeta').classList.remove('d-none');
+            document.getElementById('seccionYape').classList.add('d-none');
+            document.getElementById('btnTarjeta').classList.add('active');
+            document.getElementById('btnYape').classList.remove('active');
+            document.getElementById('numTarjeta').required = true;
+            document.getElementById('vencimiento').required = true;
+            document.getElementById('cvv').required = true;
+        } else {
+            document.getElementById('seccionTarjeta').classList.add('d-none');
+            document.getElementById('seccionYape').classList.remove('d-none');
+            document.getElementById('btnTarjeta').classList.remove('active');
+            document.getElementById('btnYape').classList.add('active');
+            document.getElementById('numTarjeta').required = false;
+            document.getElementById('vencimiento').required = false;
+            document.getElementById('cvv').required = false;
+        }
+    }
+</script>

@@ -1,64 +1,81 @@
 ﻿@{
     ViewData["Title"] = "Resumen de Compra";
-    var listaCombos = ViewBag.ListaCombos as List<CinepolisApp.Controllers.CompraController.ComboElegidoDTO>;
+
+    // Traemos la lista segura de snacks para usarla abajo sin errores
+    var listaSnacks = ViewBag.ListaCombos as List<CinepolisApp.Controllers.CompraController.ComboElegidoDTO>
+                      ?? new List<CinepolisApp.Controllers.CompraController.ComboElegidoDTO>();
 }
 
 <div class="container mt-4" style="max-width: 650px;">
     <div class="card shadow border-0 p-4">
         <h3 class="fw-bold text-primary text-center mb-4">💳 RESUMEN DE TU RESERVA</h3>
 
-        <div class="bg-light p-3 rounded mb-3 border">
+        <div class="bg-light p-3 rounded mb-4 border">
             <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">🎟️ ENTRADAS SELECCIONADAS</h6>
             <div class="d-flex justify-content-between small">
                 <span><strong>Butacas:</strong> <span class="text-primary">@ViewBag.Asientos</span></span>
                 <span>@ViewBag.CantidadEntradas tickets x S/ 15.00</span>
             </div>
-            <p class="text-end fw-bold text-dark mb-0 mt-2">Subtotal Entradas: S/ @ViewBag.TotalEntradas.ToString("F2")</p>
+            <p class="text-end fw-bold text-dark mb-0 mt-2">Subtotal Entradas: S/ @(ViewBag.SubtotalEntradas ?? "0.00")</p>
         </div>
 
         <div class="bg-light p-3 rounded mb-4 border">
-            <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">🍿 SNACKS Y COMBOS</h6>
-            @if (listaCombos != null && listaCombos.Count > 0)
+            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">🍿 SNACKS Y COMBOS</h6>
+
+            @if (listaSnacks.Count > 0)
             {
-                @foreach (var combo in listaCombos)
-                {
-                    <div class="d-flex justify-content-between small mb-1">
-                        <span>@combo.Nombre <strong class="text-muted">x@combo.Cantidad</strong></span>
-                        <span>S/ @combo.Subtotal.ToString("F2")</span>
-                    </div>
-                }
-                <p class="text-end fw-bold text-dark mb-0 border-top pt-2 mt-2">Subtotal Dulcería: S/ @ViewBag.TotalCombos.ToString("F2")</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless align-middle mb-0" style="font-size: 14px;">
+                        <thead class="text-muted border-bottom">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cant.</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in listaSnacks)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@item.Nombre</td>
+                                    <td class="text-center bg-white rounded-pill px-2">@item.Cantidad</td>
+                                    <td class="text-end text-muted">S/ @item.PrecioUnitario.ToString("F2")</td>
+                                    <td class="text-end fw-bold text-dark">S/ @item.Subtotal.ToString("F2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-end fw-bold text-dark mb-0 mt-3 border-top pt-2">Subtotal Snacks: S/ @(ViewBag.SubtotalSnacks ?? "0.00")</p>
             }
             else
             {
-                <p class="text-muted small mb-0">No agregaste snacks a tu función.</p>
+                <div class="text-center py-2 text-muted small">
+                    <i class="fa-solid fa-basket-shopping me-1"></i> No seleccionaste ningún snack.
+                </div>
             }
         </div>
 
-        <form asp-action="TerminarCompra" method="post">
-            <h5 class="fw-bold text-dark mb-3">👤 Datos para el Ticket</h5>
+        <div class="d-flex justify-content-between align-items-center bg-primary text-white p-3 rounded shadow-sm mb-4">
+            <h5 class="mb-0 fw-bold">TOTAL A PAGAR:</h5>
+            <h4 class="mb-0 fw-bold fs-3">S/ @(ViewBag.TotalPagar ?? "0.00")</h4>
+        </div>
 
+        <form asp-controller="Compra" asp-action="TerminarCompra" method="post">
             <div class="mb-3">
-                <label class="form-label small fw-bold text-muted">Nombre Completo del Titular</label>
-                <input type="text" name="clienteNombre" class="form-control" placeholder="Ej. Juan Pérez" required />
+                <label class="form-label small fw-bold text-secondary">Nombre Completo del Cliente</label>
+                <input type="text" name="clienteNombre" class="form-control" placeholder="Ej. Frank..." required />
             </div>
-
             <div class="mb-4">
-                <label class="form-label small fw-bold text-muted">Número de DNI</label>
-                <input type="text" name="clienteDni" class="form-control" maxlength="8" placeholder="8 dígitos" required onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" />
+                <label class="form-label small fw-bold text-secondary">DNI / Documento</label>
+                <input type="text" name="clienteDni" class="form-control" maxlength="8" placeholder="8 dígitos" required />
             </div>
 
-            <div class="d-flex justify-content-between align-items-center border-top pt-3 mb-4">
-                <h4 class="fw-bold text-dark mb-0">TOTAL A PAGAR:</h4>
-                <h3 class="fw-bold text-success mb-0">S/ @ViewBag.TotalPagar.ToString("F2")</h3>
-            </div>
-
-            <div class="d-flex gap-2">
-                <a href="@Url.Action("SeleccionarCombos", "Compra")" class="btn btn-light border fw-bold w-25">⬅️ Volver</a>
-                <button type="submit" class="btn btn-success w-75 fw-bold fs-5 shadow-sm">
-                    🔒 Finalizar y Pagar S/ @ViewBag.TotalPagar.ToString("F2")
-                </button>
-            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold py-2 fs-5 shadow-sm">
+                🔒 Finalizar y Pagar S/ @(ViewBag.TotalPagar ?? "0.00")
+            </button>
         </form>
+
     </div>
 </div>

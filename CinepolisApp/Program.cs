@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options => {
     options.IdleTimeout = TimeSpan.FromMinutes(20); // La sesión dura 20 minutos activa

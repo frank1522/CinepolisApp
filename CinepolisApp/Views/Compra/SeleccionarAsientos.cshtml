@@ -75,14 +75,14 @@
     let procesandoFormulario = false; 
     function toggleAsiento(boton) {
         let asiento = boton.getAttribute("data-asiento");
-
+        
         if (asientosSeleccionados.includes(asiento)) {
             asientosSeleccionados = asientosSeleccionados.filter(item => item !== asiento);
             boton.classList.remove("btn-primary", "text-white");
             boton.classList.add("btn-outline-secondary");
         } else {
             if (asientosSeleccionados.length >= 10) {
-                alert("¡Mano, por políticas del cine el límite máximo es de 10 butacas por transacción!");
+                alert("¡Por políticas del cine el límite máximo es de 10 butacas por transacción!");
                 return;
             }
             asientosSeleccionados.push(asiento);
@@ -105,7 +105,7 @@
         return true;
     }
 
-    // CONTROL EXACTO DE LA ALERTA DE SALIDA (Como tu captura)
+    // CONTROL EXACTO DE LA ALERTA DE SALIDA 
     window.onbeforeunload = function(e) {
         // Solo salta si tiene asientos elegidos Y NO le ha dado clic a continuar
         if (asientosSeleccionados.length > 0 && !procesandoFormulario) {

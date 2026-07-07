@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "¡Compra Exitosa!";
+}
+
+<div class="container mt-5 text-center" style="max-width: 550px;">
+    <div class="card shadow border-0 p-5 rounded-4" style="background-color: #ffffff;">
+        <div class="mb-3">
+            <i class="fa-solid fa-circle-check text-success" style="font-size: 70px;"></i>
+        </div>
+        <h2 class="fw-bold text-dark mb-2">¡COMPRA CONFIRMADA!</h2>
+        <p class="text-muted">Tu transacción ha sido procesada con éxito. Presenta este código en la entrada del cine.</p>
+
+        <div class="my-4 p-3 bg-light rounded d-inline-block shadow-sm">
+            <img src="~/images/qr.png"
+                 alt="Código QR Cinépolis"
+                 style="width: 220px; height: 220px;"
+                 class="img-fluid bg-white p-2 rounded" />
+
+            <div class="mt-2 small fw-bold text-muted">CÓDIGO DE RESERVA: #@ViewBag.IdVenta</div>
+        </div>
+
+        <div class="alert alert-warning text-start small mb-4">
+            <i class="fa-solid fa-circle-info me-2"></i> Recuerda llegar 15 minutos antes de tu función. Los combos se recogen directo en la barra de dulcería mostrando el QR.
+        </div>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary w-100 fw-bold py-2 fs-6">
+            <i class="fa-solid fa-house me-2"></i>Volver a la Cartelera Principal
+        </a>
+    </div>
+</div>
