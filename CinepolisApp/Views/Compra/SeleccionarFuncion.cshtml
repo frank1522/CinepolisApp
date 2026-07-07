@@ -1,0 +1,38 @@
+﻿@model List<CinepolisApp.DAO.FuncionDTO>
+
+@{
+    ViewData["Title"] = "Seleccionar Función";
+}
+
+<div class="container mt-4" style="max-width: 800px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h3 class="fw-bold text-primary text-center mb-4">🕒 SELECCIONA TU HORARIO</h3>
+
+        <p class="text-muted">Selecciona el cine y la hora en la que deseas ver la película:</p>
+
+        <div class="list-group">
+            @foreach (var funcion in Model)
+            {
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3 mb-2 border rounded shadow-sm">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">📍 @funcion.NombreCine</h5>
+                        <p class="mb-0 text-muted small">
+                            📅 Fecha: @funcion.Fecha.ToString("dd/MM/yyyy") | 🎥 @funcion.Sala
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-success fs-6 d-block mb-2">S/ @funcion.PrecioEntrada.ToString("F2")</span>
+
+                        <a href="@Url.Action("SeleccionarAsientos", "Compra", new { idFuncion = funcion.IdFuncion })" class="btn btn-outline-primary btn-sm fw-bold px-3">
+                            @funcion.Hora hrs
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-sm">⬅️ Volver a la cartelera</a>
+        </div>
+    </div>
+</div>

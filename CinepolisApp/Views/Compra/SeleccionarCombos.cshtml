@@ -1,0 +1,90 @@
+﻿@model List<CinepolisApp.Models.Producto>
+
+@{
+    ViewData["Title"] = "Dulcería Cinépolis";
+}
+
+<div class="container mt-4" style="max-width: 850px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h3 class="fw-bold text-primary text-center mb-1">🍿 DULCERÍA Y COMBOS</h3>
+        <p class="text-muted text-center small mb-4">Añade los mejores snacks para acompañar tu función</p>
+
+        <form asp-action="GuardarCombos" method="post" onsubmit="return validarCombos()">
+            <div class="row row-cols-1 g-3 mb-4">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <div class="col">
+                        <div class="d-flex align-items-center justify-content-between p-3 border rounded shadow-sm bg-light">
+                            <div class="d-flex align-items-center">
+                                <img src="@Model[i].ImagenUrl" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.src='https://placehold.co/100x100?text=Combo'">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">@Model[i].Nombre</h5>
+                                    <p class="text-muted small mb-0">@Model[i].Descripcion</p>
+                                    <span class="text-success fw-bold">S/ @Model[i].Precio.ToString("F2")</span>
+                                </div>
+                            </div>
+
+                            <div class="text-end" style="min-width: 130px;">
+                                <input type="hidden" name="idProducto" value="@Model[i].IdProducto" />
+                                <div class="input-group input-group-sm justify-content-end">
+                                    <button class="btn btn-outline-secondary fw-bold" type="button" onclick="restar(this)">-</button>
+                                    <input type="text" name="cantidad" class="form-content text-center fw-bold bg-white text-dark" value="0" readonly style="width: 40px; border: 1px solid #ced4da;" />
+                                    <button class="btn btn-outline-primary fw-bold" type="button" onclick="sumar(this)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="border-top pt-3 d-flex gap-2">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-light w-50 fw-bold border"
+                   onclick="return confirm('¿Estás seguro de cancelar? Se limpiará tu selección de entradas y snacks.');">
+                    Cancelar Compra
+                </a>
+                <button type="submit" class="btn btn-primary w-50 fw-bold">Continuar al Pago ➡️</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Función para contar cuántos snacks lleva en total el carrito actual
+    function obtenerTotalCombos() {
+        let total = 0;
+        document.querySelectorAll('input[name="cantidad"]').forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        return total;
+    }
+
+    function sumar(boton) {
+        let input = boton.parentElement.querySelector('input[name="cantidad"]');
+        let valor = parseInt(input.value);
+
+        // CONTROL ESTRICTO: Compara la suma total antes de dejar agregar otro
+        if (obtenerTotalCombos() >= 10) {
+            alert("¡Límite alcanzado! No puedes agregar más de 10 combos en total por compra.");
+            return;
+        }
+
+        input.value = valor + 1;
+    }
+
+    function restar(boton) {
+        let input = boton.parentElement.querySelector('input[name="cantidad"]');
+        let valor = parseInt(input.value);
+        if (valor > 0) {
+            input.value = valor - 1;
+        }
+    }
+
+    function validarCombos() {
+        // Validación de respaldo por seguridad al disparar el botón de continuar
+        if (obtenerTotalCombos() > 10) {
+            alert("Suma total inválida. Ajusta tus combos a un máximo de 10.");
+            return false;
+        }
+        return true;
+    }
+</script>

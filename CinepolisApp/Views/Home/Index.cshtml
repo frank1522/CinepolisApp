@@ -1,0 +1,38 @@
+﻿@model List<CinepolisApp.Models.Pelicula>
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center fw-bold fs-5 my-3 shadow-sm" role="alert">
+        🎉 @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@{
+    ViewData["Title"] = "Cartelera Cinépolis";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4 text-uppercase fw-bold text-primary">🎬 Cartelera Disponible</h2>
+
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        @foreach (var pelicula in Model)
+        {
+            <div class="col">
+                <div class="card mb-4">
+                    <img src="@pelicula.ImagenUrl" class="card-img-top" alt="@pelicula.Titulo" style="height: 350px; object-fit: cover;" onerror="this.src='https://placehold.co/300x450?text=Cinepolis'">
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold text-dark text-truncate">@pelicula.Titulo</h5>
+                        <p class="card-text text-muted small mb-1"><strong>Género:</strong> @pelicula.Genero</p>
+                        <p class="card-text text-muted small mb-1"><strong>Clasificación:</strong> @pelicula.Clasificacion</p>
+                        <p class="card-text text-muted small mb-3"><strong>Duración:</strong> @pelicula.Duracion min</p>
+
+                        <a href="@Url.Action("SeleccionarFuncion", "Compra", new { id = pelicula.IdPelicula })" class="btn btn-primary mt-auto w-100 fw-bold">
+                            🎟️ Comprar Entradas
+
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

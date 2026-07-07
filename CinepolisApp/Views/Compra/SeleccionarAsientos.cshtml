@@ -1,0 +1,116 @@
+﻿@{
+    ViewData["Title"] = "Seleccionar Asientos";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <div class="card shadow-sm border-0 p-4">
+        <h3 class="fw-bold text-primary text-center mb-1">🎬 SELECCIÓN DE BUTACAS</h3>
+        <p class="text-muted text-center small mb-4">Haz clic en los asientos que deseas reservar</p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">@TempData["Error"]</div>
+        }
+
+        <div class="w-100 bg-dark text-white text-center py-2 mb-5 rounded shadow-sm fw-bold small" style="letter-spacing: 3px;">
+            📺 PANTALLA DE LA SALA
+        </div>
+        <div class="d-flex flex-column align-items-center mb-4">
+            @{
+                
+                string[] filas = { "A", "B", "C", "D" };
+            }
+
+            @foreach (var fila in filas)
+            {
+                <div class="d-flex mb-2 justify-content-center align-items-center w-100">
+                    <span class="fw-bold text-muted me-3" style="width: 15px;">@fila</span>
+
+                    @for (int col = 1; col <= 6; col++)
+                    {
+                        string asientoId = fila + col;
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-asiento m-1 fw-bold d-flex align-items-center justify-content-center"
+                                style="width: 45px; height: 45px; font-size: 12px;"
+                                data-asiento="@asientoId"
+                                onclick="toggleAsiento(this)">
+                            @col
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+      
+
+        <div class="d-flex justify-content-center gap-4 my-4 small">
+            <div><span class="badge bg-secondary px-2 py-2 me-1"> </span> Disponible</div>
+            <div><span class="badge bg-primary px-2 py-2 me-1"> </span> Seleccionado</div>
+        </div>
+
+        <form asp-action="GuardarAsientos" method="post" onsubmit="return validarEnvio()">
+            <input type="hidden" name="idFuncion" value="@ViewBag.IdFuncion" />
+            <input type="hidden" id="inputAsientos" name="asientos" value="" />
+
+            <div class="border-top pt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted fw-bold">Asientos elegidos:</span>
+                    <span id="txtSeleccionados" class="fw-bold text-primary fs-6">Ninguno</span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold fs-5 py-2">
+                    Confirmar Asientos ➡️
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="text-center mt-3 border-top pt-2">
+        <a href="@Url.Action("Index", "Home")" class="text-decoration-none fw-bold" style="color: #fdb813 !important;"
+           onclick="return confirm('¿Mano, estás seguro de regresar? Perderás el proceso de selección actual.');">
+            <i class="fa-solid fa-arrow-left me-1"></i> Regresar a Cartelera
+        </a>
+    </div>
+</div>
+
+<script>
+    let asientosSeleccionados = [];
+    let procesandoFormulario = false; 
+    function toggleAsiento(boton) {
+        let asiento = boton.getAttribute("data-asiento");
+
+        if (asientosSeleccionados.includes(asiento)) {
+            asientosSeleccionados = asientosSeleccionados.filter(item => item !== asiento);
+            boton.classList.remove("btn-primary", "text-white");
+            boton.classList.add("btn-outline-secondary");
+        } else {
+            if (asientosSeleccionados.length >= 10) {
+                alert("¡Mano, por políticas del cine el límite máximo es de 10 butacas por transacción!");
+                return;
+            }
+            asientosSeleccionados.push(asiento);
+            boton.classList.remove("btn-outline-secondary");
+            boton.classList.add("btn-primary", "text-white");
+        }
+
+        document.getElementById("txtSeleccionados").innerText = asientosSeleccionados.length > 0 ? asientosSeleccionados.join(", ") : "Ninguno";
+        document.getElementById("inputAsientos").value = asientosSeleccionados.join(",");
+    }
+
+    function validarEnvio() {
+        if (asientosSeleccionados.length === 0) {
+            alert("Por favor, selecciona al menos una butaca.");
+            return false;
+        }
+
+        // Si todo está bien, marcamos que estamos procesando para que NO salte la alerta
+        procesandoFormulario = true;
+        return true;
+    }
+
+    // CONTROL EXACTO DE LA ALERTA DE SALIDA (Como tu captura)
+    window.onbeforeunload = function(e) {
+        // Solo salta si tiene asientos elegidos Y NO le ha dado clic a continuar
+        if (asientosSeleccionados.length > 0 && !procesandoFormulario) {
+            e.preventDefault();
+            return "Es posible que los cambios no se guarden."; // Texto estándar que dispara la ventana del navegador
+        }
+    };
+</script>

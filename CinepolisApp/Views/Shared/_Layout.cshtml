@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Cinépolis Digital</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CinepolisApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        .nav-cinepolis .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: color 0.3s ease; /* Hace que el cambio de color sea suave */
+        }
+            /* Al pasar el mouse (hover), cambia a Dorado Cinépolis */
+            .nav-cinepolis .nav-link:hover {
+                color: #fdb813 !important;
+            }
+        /* Estilo especial para resaltar el botón de Promociones por defecto */
+        .nav-link-destacado {
+            color: #fdb813 !important;
+            font-weight: 700 !important;
+        }
+    </style>
+</head>
+<body style="background-color: #f8fafc;">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3" style="background-color: #00122e !important; padding: 15px 0;">
+            <div class="container-fluid">
+                <a class="navbar-brand" style="color: #fdb813 !important; font-weight: 700; font-size: 24px; letter-spacing: 1px;" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-film me-2"></i>CINÉPOLIS
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 ms-4 nav-cinepolis">
+                        <li class="nav-item">
+                            <a class="nav-link" style="padding: 0 15px;" asp-area="" asp-controller="Home" asp-action="Index">Cartelera</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="padding: 0 15px;" asp-area="" asp-controller="Home" asp-action="Index">Próximos estrenos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="padding: 0 15px;" asp-area="" asp-controller="Home" asp-action="Index">Preventas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-destacado" style="padding: 0 15px;" asp-area="" asp-controller="Home" asp-action="Privacy">Promociones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="padding: 0 15px;" asp-area="" asp-controller="Home" asp-action="Index">Ventas empresariales</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-white-50" style="background-color: #00122e !important; padding: 20px 0; margin-top: 40px;">
+        <div class="container text-center">
+            <span class="text-white">&copy; 2026 - Cinépolis Digital - Todos los derechos reservados.</span>
+            <span class="mx-2">|</span>
+            <a style="color: #fdb813 !important; text-decoration: none;" asp-area="" asp-controller="Home" asp-action="Privacy">Políticas de Privacidad y Promociones</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
